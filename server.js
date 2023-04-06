@@ -9,9 +9,7 @@ const consoleTable = require('console.table');
 const PORT = process.env.PORT || 3001;
 const app = express();
 
-// Express middleware
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
+
 
 // Connect to database
 const db = mysql.createConnection(
@@ -20,7 +18,7 @@ const db = mysql.createConnection(
     // MySQL username,
     user: 'root',
     // TODO: Add MySQL password here
-    password: 'password',
+    password: '',
     database: 'employee_db'
   },
   console.log(`Connected to the employee_db database.`)
@@ -82,7 +80,7 @@ function init() {
 
 function viewDepartments() {
   db.query(
-  "SELECT department.id AS ID, department.name AS Department FROM department",
+  "SELECT department.id AS ID, department.department_name AS Department FROM department",
   function(err, res) {
     if (err) throw err
     console.log("Departments");
@@ -156,3 +154,119 @@ function addDepartment() {
   })
 };
 
+const roleArr = [];
+function selectRole() {
+  db.query(
+    "SELECT * FROM role",
+    function(err, res) {
+      if (err) throw err
+      for (let i = 0; i < res.length; i++) {
+        roleArr.push(res[i].title);
+      }
+    }
+  )
+  return roleArr;
+}
+
+function addRole() {
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        message: "What is the name of the new role?",
+        name: "roleName"
+      },
+      {
+        type: "input",
+        message: "What is the salary of the role?",
+        name: "roleSalary"
+      },
+      {
+        type: "input",
+        message: "What is the department id number?",
+        name: "deptId"
+      }
+    ])
+    .then(function(answers){
+      db.query(
+        "INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)",
+        [
+          answers.roleName,
+          answers.roleSalary,
+          answers.deptId
+        ],
+        function(err, res) {
+          if (err) throw err;
+          console.table(res);
+          init();
+        }
+      );
+    });
+};
+
+
+//updating database
+
+const employeeChoices = async() => {
+  const employees = await db.query(`SELECT id AS value, last_name from employee;`);
+  return employees[0];
+};
+
+//add employers
+function addEmployee() {
+  inquirer.prompt([
+    {
+      type: "input",
+      name: "firstName",
+      message: "Type the employee's first name"
+    },
+    {
+      type: "input",
+      name: "lastName",
+      message: "Type the employee's last name"
+    },
+    {
+      type: "input",
+      name: "managerId",
+      message: "Type the employee's manager ID number"
+    },
+  ]).then(function(answers) {
+    db.query(
+      "INSERT INTO employee (first_name, last_name, manager_id) VALUES (?, ?, ?)",
+      [answers.firstName, answers.lastName, answers.managerId],
+      function(err, res) {
+        if(err) throw err;
+        console.table(res);
+        init();
+      }
+    )
+  })
+}
+
+function updateRole() {
+  inquirer.prompt([
+    {
+      type: "input",
+      message: "Which employee would you like to update?",
+      name: "employeeName"
+    },
+    {
+      type: "input",
+      message: "What is their new roleID?",
+      name: "newRole"
+    },
+  ])
+  ,then(function(answers) {
+    db.query(
+      "UPDATE employee SET role_id=? WHERE first_name= ?",
+      [answers.newRole, answers.employeeName],
+      function(err, res) {
+        if(err) throw err;
+        console.table(res);
+        init();
+      }
+    );
+  });
+};
+
+init();

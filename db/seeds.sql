@@ -1,11 +1,11 @@
-INSERT INTO department (department_id)
+INSERT INTO department (department_name)
 VALUES ("Sales"),
        ("Engineering"),
        ("Finance"),
        ("Legal");
 
 
-INSERT INTO role(department_id, title, salary)
+INSERT INTO role (department_id, title, salary)
 VALUES (1, "Salesperson", 80000),
        (2, "LeadEngineer", 150000),
        (2, "Software Engineer", 120000),
@@ -22,5 +22,4 @@ VALUES ("Michael", "Lantigua", 1, 0),
        ("Elias", "Brens", 4, 0),
        ("Jesus", "Nunez", 5, 4),
        ("Angel", "Ramos", 6, 0),
-       ("Manuel", "Rodriguez", 7, 6),
-       ("Genesis", "Garcia", 8, 0)
+       ("Manuel", "Rodriguez", 7, 6);
