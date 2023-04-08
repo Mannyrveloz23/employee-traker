@@ -6,7 +6,7 @@ const consoleTable = require('console.table');
 
 
 
-const PORT = process.env.PORT || 3001;
+// const PORT = process.env.PORT || 3001;
 const app = express();
 
 
@@ -24,59 +24,65 @@ const db = mysql.createConnection(
   console.log(`Connected to the employee_db database.`)
 );
 
-const mainMenu = [{
-  name: "responses",
-  type: "list",
-  message: "Hi, what are you looking for?",
-  choices: [
-    "View Departments",
-    "View Roles",
-    "View Employees",
-    "Add Deparment",
-    "Add Role",
-    "Add Employee",
-    "Update Employee Role",
-    "Finish"
-  ]
-}];
-//initiate function prompts user and let use the database
+// Define the main menu options
+const mainMenu = [
+  {
+    type: 'list',
+    name: 'response',
+    message: 'What would you like to do?',
+    choices: [
+      'View Departments',
+      'View Roles',
+      'View Employees',
+      'Add Department',
+      'Add Role',
+      'Add Employee',
+      'Update Employee Role',
+      'Finish',
+    ],
+  },
+];
+
+// Define the main function
 function init() {
-  inquirer.prompt(mainMenu).then(function(answers){
-    switch (answers.responses) {
-      case "View Departments":
-        viewDepartments();
-      break;
-
-      case "View Roles":
-        viewRoles();
-      break;
-
-      case "View Employees":
-        ViewEmployees();
-      break
-
-      case "Add Department":
-        addDepartment();
-      break;
-
-      case "Add Role":
-        addRole();
-      break;
-
-      case "Add Employee":
-        addEmployee();
-      break;
-
-      case "Update Employee Role":
-        updateRole();
-      break
-
-      case "Finish":
-        db.end();
-      break;
-    }
-  })
+  // Use inquirer to prompt the user with the main menu
+  inquirer.prompt(mainMenu).then(handleResponse);
 }
+
+// Handle the user response
+function handleResponse(response) {
+  // Call the corresponding function based on the user's choice
+  switch (response.response) {
+    case 'View Departments':
+      viewDepartments();
+      break;
+    case 'View Roles':
+      viewRoles();
+      break;
+    case 'View Employees':
+      viewEmployees();
+      break;
+    case 'Add Department':
+      addDepartment();
+      break;
+    case 'Add Role':
+      addRole();
+      break;
+    case 'Add Employee':
+      addEmployee();
+      break;
+    case 'Update Employee Role':
+      updateRole();
+      break;
+    case 'Finish':
+      db.end();
+      break;
+    default:
+      console.log('Invalid choice');
+      break;
+  }
+}
+
 
 function viewDepartments() {
   db.query(
@@ -100,7 +106,7 @@ function viewRoles() {
   })
 }
 
-function ViewEmployees() {
+function viewEmployees() {
   db.query(
     "SELECT employee.id AS Employee_ID, first_name AS First_Name, last_name AS Last_Name, role_id AS Role_ID, manager_id AS Manager_ID FROM employee",
     function(err, res) {
@@ -115,7 +121,7 @@ function ViewEmployees() {
 const departmentArr = [];
 function selectDept() {
   db.query(
-    "SELECT * FROM deparment",
+    "SELECT * FROM department",
     function(err, res) {
       if (err) throw err
       for (let i=0; i < res.length; i++) {
@@ -143,7 +149,7 @@ function addDepartment() {
     }
   ]).then(function(answers) {
     db.query(
-      "INSERT INTO department (name) VALUES(?)",
+      "INSERT INTO department (department_name) VALUES(?)",
       answers.name,
       function(err, res) {
         if(err) throw err;
@@ -189,10 +195,10 @@ function addRole() {
     ])
     .then(function(answers){
       db.query(
-        "INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)",
+        "INSERT INTO role (salary, title, department_id) VALUES (?, ?, ?)",
         [
-          answers.roleName,
           answers.roleSalary,
+          answers.roleName,
           answers.deptId
         ],
         function(err, res) {
@@ -252,11 +258,11 @@ function updateRole() {
     },
     {
       type: "input",
-      message: "What is their new roleID?",
+      message: "What is the new roleID?",
       name: "newRole"
     },
   ])
-  ,then(function(answers) {
+  .then(function(answers) {
     db.query(
       "UPDATE employee SET role_id=? WHERE first_name= ?",
       [answers.newRole, answers.employeeName],
