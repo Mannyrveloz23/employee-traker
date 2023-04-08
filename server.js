@@ -45,6 +45,12 @@ const mainMenu = [
 
 // Define the main function
 function init() {
+
+  console.log("***********************************")
+  console.log("*                                 *")
+  console.log("*        EMPLOYEE TRACKER         *")
+  console.log("*                                 *")
+  console.log("***********************************")
   // Use inquirer to prompt the user with the main menu
   inquirer.prompt(mainMenu).then(handleResponse);
 }
